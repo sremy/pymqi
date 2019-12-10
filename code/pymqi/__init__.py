@@ -854,12 +854,37 @@ class CD(MQOpts):
     default values may be overridden by the optional keyword arguments
     'kw'."""
 
+    if '8.0.0' in pymqe.__mqlevels__:
+        _mqcd_version = CMQXC.MQCD_VERSION_11
+        _mqcd_current_length = CMQXC.MQCD_LENGTH_11
+
+    if '7.5' in pymqe.__mqlevels__:
+        _mqcd_version = CMQXC.MQCD_VERSION_10
+        _mqcd_current_length = CMQXC.MQCD_LENGTH_10
+
+    elif '7.0' in pymqe.__mqlevels__:
+        _mqcd_version = CMQXC.MQCD_VERSION_9
+        _mqcd_current_length = CMQXC.MQCD_LENGTH_9
+
+    elif '6.0' in pymqe.__mqlevels__:
+        _mqcd_version = CMQXC.MQCD_VERSION_8
+        _mqcd_current_length = CMQXC.MQCD_LENGTH_8
+
+    elif '5.3' in pymqe.__mqlevels__:
+        _mqcd_version = CMQXC.MQCD_VERSION_7
+        _mqcd_current_length = CMQXC.MQCD_LENGTH_7
+
+    else:
+        # The default version in MQCD_DEFAULT in cmqxc.h is MQCD_VERSION_6
+        _mqcd_version = CMQXC.MQCD_VERSION_6
+        _mqcd_current_length = CMQXC.MQCD_LENGTH_6
+
     def __init__(self, **kw):
         """__init__(**kw)"""
         opts = []
         opts += [
             ['ChannelName', b'', '20s'],
-            ['Version', CMQXC.MQCD_VERSION_6, MQLONG_TYPE],
+            ['Version', self._mqcd_version, MQLONG_TYPE],
             ['ChannelType', CMQC.MQCHT_CLNTCONN, MQLONG_TYPE],
             ['TransportType', CMQC.MQXPT_TCP, MQLONG_TYPE],
             ['Desc', b'', '64s'],
@@ -904,7 +929,7 @@ class CD(MQOpts):
             ['HeartbeatInterval', py23long(300), MQLONG_TYPE],
             ['BatchInterval', py23long(0), MQLONG_TYPE],
             ['NonPersistentMsgSpeed', CMQC.MQNPMS_FAST, MQLONG_TYPE],
-            ['StrucLength', CMQXC.MQCD_CURRENT_LENGTH, MQLONG_TYPE],
+            ['StrucLength', self._mqcd_current_length, MQLONG_TYPE],
             ['ExitNameLength', CMQC.MQ_EXIT_NAME_LENGTH, MQLONG_TYPE],
             ['ExitDataLength', CMQC.MQ_EXIT_DATA_LENGTH, MQLONG_TYPE],
             ['MsgExitsDefined', py23long(0), MQLONG_TYPE],
