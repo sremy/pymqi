@@ -10,7 +10,7 @@ jobs:
     strategy:
       matrix:
         environment: ['macos-latest', 'windows-latest', 'ubuntu-latest']
-        python-version: [2.7, 3.5, 3.6, 3.7, 3.8, 3.9]
+        python-version: [2.7, 3.7, 3.8, 3.9]
         python-architecture: ['x86', 'x64']
         mq-client-version: [9.2.0.0]
         exclude:
@@ -45,8 +45,18 @@ jobs:
           python-version: ${{ matrix.python-version }}
           architecture: ${{ matrix.python-architecture }}
 
-      - name: Install pymqi
+      - name: Install wheel tool
+        run: |
+          pip install wheel
+
+      - name: Install pymqi, create the wheel
         env:
           MQ_FILE_PATH: ${{ steps.setup-mqclient.outputs.mq-file-path }}
         run: |
-          python setup.py install --verbose
+          python setup.py install --verbose bdist_wheel
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: pymqi-${{ matrix.python-version }}-${{ matrix.environment }}-${{ matrix.python-architecture }}.whl
+          path: dist/*.whl
